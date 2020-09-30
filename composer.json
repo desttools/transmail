@@ -1,0 +1,22 @@
+{
+    "name": "desttools/transmail",
+    "type": "library",
+    "description": "TransMail Email Client Library for PHP",
+    "keywords": ["zoho", "email", "deliverability", "transmail"],
+    "homepage": "https://www.zoho.com/transmail/",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Destination Toolbox",
+            "email": "james@destinationtoolbox.com",
+            "homepage": "https://www.destinationtoolbox.com",
+            "role": "Developer"
+        }
+    ],
+    "require": {
+        "php": "^5.6.0 || ^7.0"
+    },
+	"autoload": {
+		"files": ["TransmailClient.php"]
+    }
+}
