@@ -12,9 +12,56 @@ composer require desttools/transmail
 
 Alternately, you can simply [clone this repository](https://github.com/desttools/transmail.git) directly to include the source code in your project.
 
+
+In your environment file, you'll want to create two settings:
+
+```PHP
+transmailkey = "************transmail-key-provided-by-zoho*****************"
+transbounceaddr = "***bounce-address-set-in-transmail-settings***"
+```
+
+
+To load the library in your page or app, you'll need to load the library:
+
 ```PHP 
+// doing your own loading:
 include_once ("./transmail/TransmailClient.php");
-//or if using composer: include_once ('./vendor/autoload.php'); 
+
+// or if using composer autoloading: 
+include_once ('./vendor/autoload.php'); 
+
+```
+
+Then a basic mailing example:
+
+```PHP 
+
+$tmclient = new TransmailClient();
+$response = $tmclient->send(
+	"My Subject", //SUBJECT (required)
+	"My text-only message", //TEXT MSG, NULL IF sending HTML (required)
+	"<p>My HTML-formatted message</p>", //HTML MSG, NULL if sending TEXT (required)
+	array("name"=>"Joe Customer","address"=>"joe@customer.com"), //TO (required)
+	array("name"=>"XYZ Company","address"=>"web@site.com") //FROM (required)
+	);
+
+if ($response)
+{
+// success, 
+} 
+else 
+{
+// failure
+}
+
+```
+
+Note that all the email addresses are passed to the function as an array with values for "name" and "address." If you do not have a value for name, you can just pass the "address" value and omit "name."
+
+All the possible options, including passing authorization key by reference:
+
+
+```PHP 
 
 $tmclient = new TransmailClient();
 $response = $tmclient->send(
@@ -23,7 +70,7 @@ $response = $tmclient->send(
 	"<p>My HTML-formatted message</p>", //HTML MSG, NULL if sending TEXT (required)
 	array("name"=>"Joe Customer","address"=>"joe@customer.com"), //TO (required)
 	array("name"=>"XYZ Company","address"=>"web@site.com"), //FROM (required)
-	array("name"=>"XYZ Help","address"=>"suppport@site.com"), //REPLY TO (optional)
+	array("name"=>"XYZ Help","address"=>"support@site.com"), //REPLY TO (optional)
 	array("name"=>"Bob Smith","address"=>"bob@site.com"), //CC (optional)
 	array("name"=>"Joe Davis","address"=>"joe@site.com"), //BCC (optional)
 	TRUE, //TRACK CLICKS, TRUE by default (optional)
@@ -35,14 +82,14 @@ $response = $tmclient->send(
 	NULL, //API KEY (required if not set as ENV variable)
 	NULL); //BOUNCE ADDRESS (required if not set at ENV variable)
 
-	if ($response)
-	{
-		// success, 
-	} 
-		else 
-	{
-		// failure
-	}
+if ($response)
+{
+// success, 
+} 
+else 
+{
+// failure
+}
 
 ```
 
