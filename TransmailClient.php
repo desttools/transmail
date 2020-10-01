@@ -62,10 +62,7 @@ class TransmailClient{
 				//no action here
 			} else {
 				//no key defined, exit
-				//return FALSE;
-				
-				//forced val for testing
-				$key = "wSsVR611/EPwDqt1yjWpIr8/ngkGDlygRhwri1Om73H6HqvA/cc+xhLMBwL0T/cZF2c8FDBD9r4rzBoE1zVY24gszVwJCSiF9mqRe1U4J3x17qnvhDzIV2hbkBaPLosIwQximWFlEs4g+g==";
+				return FALSE;
 			}
 			
 			//set required bounce address, defined in Transmail settings
@@ -77,10 +74,7 @@ class TransmailClient{
 				//no action here
 			} else {
 				//no key defined, exit
-				//return FALSE;
-				
-				//forced val for testing
-				$bounce_address = "boing@bounce.branson.direct";
+				return FALSE;
 			}
             
 			$data = array();
