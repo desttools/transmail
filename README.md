@@ -1,8 +1,10 @@
-# Transmail PHP Client
+# TransMail PHP Client
 
-Generic PHP API for Zoho's Transmail service
+Generic PHP API for Zoho's TransMail service
 
-The Transmail PHP library allows you to easily send transactional email messages via the [Zoho Transmail API](https://www.zoho.com/transmail/). The Transmail system is intended for transactional emails related to website and app interactions (receipts, password resets, 2FA notices, etc.), not bulk sending of emails like newsletters and announcements. Please see the Transmail site for details about usage guidelines.
+The TransMail PHP library allows you to easily send transactional email messages via the [Zoho TransMail API](https://www.zoho.com/transmail/). 
+The TransMail system is intended for transactional emails related to website and app interactions (receipts, password resets, 2FA notices, etc.), not bulk sending of emails like newsletters and announcements. 
+Please see the [TransMail site](https://www.zoho.com/transmail/) for details about use cases and guidelines.
 
 
 ## Installation
@@ -33,17 +35,17 @@ include_once ('./vendor/autoload.php');
 
 ```
 
-Then a basic mailing example:
+## Basic Mailing Example:
 
 ```PHP 
 
 $tmclient = new \Transmail\TransmailClient();
 $response = $tmclient->send(
-	"My Subject",                                                //SUBJECT (required)
-	"My text-only message",                                      //TEXT MSG, NULL IF sending HTML (required)
-	"<p>My HTML-formatted message</p>",                          //HTML MSG, NULL if sending TEXT (required)
-	array("name"=>"Joe Customer","address"=>"joe@customer.com"), //TO (required)
-	array("name"=>"XYZ Company","address"=>"web@site.com")       //FROM (required)
+	"My Subject",                                                //SUBJECT (string, required)
+	"My text-only message",                                      //TEXT MSG, NULL IF sending HTML (string, required)
+	"<p>My HTML-formatted message</p>",                          //HTML MSG, NULL if sending TEXT (string, required)
+	array("name"=>"Joe Customer","address"=>"joe@customer.com"), //TO (array, required)
+	array("name"=>"XYZ Company","address"=>"web@site.com")       //FROM (array, required)
 	);
 
 if ($response)
@@ -59,29 +61,31 @@ else
 
 Note that all the email addresses are passed to the function as an array with values for "name" and "address." If you do not have a value for name, you can just pass the "address" value and omit "name."
 
-Below are ALL the possible options, including passing authorization key by reference:
+## Full Example
 
+Below are ALL the possible options, including passing the authorization key and bounce address by reference:
 
 ```PHP 
 
 $tmclient = new \Transmail\TransmailClient();
 $response = $tmclient->send(
-	"My Subject",                                                //SUBJECT (required)
-	"My text-only message",                                      //TEXT MSG, NULL IF sending HTML (required)
-	"<p>My HTML-formatted message</p>",                          //HTML MSG, NULL if sending TEXT (required)
-	array("name"=>"Joe Customer","address"=>"joe@customer.com"), //TO (required)
-	array("name"=>"XYZ Company","address"=>"web@site.com"),      //FROM (required)
-	array("name"=>"XYZ Help","address"=>"support@site.com"),     //REPLY TO (optional)
-	array("name"=>"Bob Smith","address"=>"bob@site.com"),        //CC (optional)
-	array("name"=>"Joe Davis","address"=>"joe@site.com"),        //BCC (optional)
-	TRUE,                                                        //TRACK CLICKS, TRUE by default (optional)
-	TRUE,                                                        //TRACK OPENS, TRUE by default (optional)
-	NULL,                                                        //CLIENT ACCOUT ID (optional)
-	NULL,                                                        //ADDITIONAL MIME HEADERS (optional)
-	NULL,                                                        //ATTACHMENTS (optional)
-	NULL,                                                        //INLINE IMAGES (optional)
-	NULL,                                                        //API KEY (required if not set as ENV variable)
-	NULL);                                                       //BOUNCE ADDRESS (required if not set at ENV variable)
+	"My Subject",                                                //SUBJECT (string, required)
+	"My text-only message",                                      //TEXT MSG, NULL IF sending HTML (string, required)
+	"<p>My HTML-formatted message</p>",                          //HTML MSG, NULL if sending TEXT (string, required)
+	array("name"=>"Joe Customer","address"=>"joe@customer.com"), //TO (array, required)
+	array("name"=>"XYZ Company","address"=>"web@site.com"),      //FROM (array, required)
+	array("name"=>"XYZ Help","address"=>"support@site.com"),     //REPLY TO (array, optional)
+	array("name"=>"Bob Smith","address"=>"bob@site.com"),        //CC (array, optional)
+	array("name"=>"Joe Davis","address"=>"joe@site.com"),        //BCC (array, optional)
+	TRUE,                                                        //TRACK CLICKS, TRUE by default (boolean, optional)
+	TRUE,                                                        //TRACK OPENS, TRUE by default (boolean, optional)
+	NULL,                                                        //CLIENT ACCOUT ID (string, optional)
+	NULL,                                                        //ADDITIONAL MIME HEADERS (array, optional)
+	NULL,                                                        //ATTACHMENTS (array, optional)
+	NULL,                                                        //INLINE IMAGES (array, optional)
+	NULL,                                                        //API KEY (string, required if not set as ENV var)
+	NULL                                                         //BOUNCE ADDRESS (string, required if not ENV var)
+	);
 
 if ($response)
 {
@@ -93,6 +97,36 @@ else
 }
 
 ```
+
+## Additional Headers
+
+Passing additional headers to the email server are possible. Simple create any headers you want as an array and pass that to the function
+
+```PHP 
+
+$headers = array();
+
+$headers[] = array( "CustId"   => "1234",
+		    "CustName" => "Bob Smith" );
+
+```
+
+## Sending Attachments
+
+Sending attachments means passing the attachments to the function as data streams. Since there are three parameters needed by TransMail, it is generally advised to first set up the attachments as an array and then pass that to the function:
+
+```PHP 
+
+$attachments = array();
+
+$attachments[] = array( "content"   => "base64-encoded-stream-of-file-content",
+			"mime_type" => "image/jpg",
+			"name"      => "filename.jpg" );
+
+
+```
+[List of supported/unsupported attachments](https://www.zoho.com/transmail/help/file-cache.html#alink-un-sup-for)
+
 
 ### [Zoho Transmail API Documentation](https://www.zoho.com/transmail/help/smtp-api.html)
 Details the SMTP and API options with the Transmail system. NOTE: This library only sends messages through the Transmail API system. If you are attempting to send via SMTP, please consult the documentation for your web or email server's mail program.

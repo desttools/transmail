@@ -18,10 +18,10 @@ Transmail Sending Example:
 			array("name"=>"Joe Davis","address"=>"joe@site.com"), //BCC (optional)
 			TRUE, //TRACK CLICKS, TRUE by default (optional)
 			TRUE, //TRACK OPENS, TRUE by default (optional)
-			NULL, //CLIENT ACCOUT ID (optional)
-			NULL, //ADDITIONAL MIME HEADERS (optional)
-			NULL, //ATTACHMENTS (optional)
-			NULL, //INLINE IMAGES (optional)
+			NULL, //CLIENT ACCOUT ID (string, optional)
+			NULL, //ADDITIONAL MIME HEADERS (array, optional)
+			NULL, //ATTACHMENTS (array, optional)
+			NULL, //INLINE IMAGES (array, optional)
 			NULL, //API KEY (required if not set as ENV variable)
 			NULL); //BOUNCE ADDRESS (required if not set at ENV variable)
 			
@@ -100,6 +100,24 @@ class TransmailClient{
 			}
 			if ($bcc){
 				$data['bcc'] = $this->jsonifyArray($bcc);
+			}
+			if ($track_clicks){
+				$data['track_clicks'] = $track_clicks;
+			}
+			if ($track_opens){
+				$data['track_opens'] = $track_opens;
+			}
+			if ($client_reference){
+				$data['client_reference'] = $client_reference;
+			}
+			if ($mime_headers){
+				$data['mime_headers'] = json_encode($mime_headers);
+			}
+			if ($attachments){
+				$data['attachments'] = json_encode($attachments);
+			}
+			if ($inline_images){
+				$data['inline_images'] = json_encode($inline_images);
 			}
 			
 
