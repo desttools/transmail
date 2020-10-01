@@ -2,33 +2,38 @@
 namespace Transmail;
 
 /**
- * Transmail Sending Example:
- *      $tmclient = new TransmailClient();
- *      $response = $tmclient->send(
- *							"My Subject", //SUBJECT (required)
- *							"My text-only message", //TEXT MSG, NULL IF sending HTML (required)
- *							"<p>My HTML-formatted message</p>", //HTML MSG, NULL if sending TEXT (required)
- *							array("name"=>"Joe Customer","address"=>"joe@customer.com"), //TO (required)
- *							array("name"=>"XYZ Company","address"=>"web@site.com"), //FROM (required)
- *							array("name"=>"XYZ Help","address"=>"suppport@site.com"), //REPLY TO (optional)
- *							array("name"=>"Bob Smith","address"=>"bob@site.com"), //CC (optional)
- *							array("name"=>"Joe Davis","address"=>"joe@site.com"), //BCC (optional)
- *							TRUE, //TRACK CLICKS, TRUE by default (optional)
- *							TRUE, //TRACK OPENS, TRUE by default (optional)
- *							NULL, //CLIENT ACCOUT ID (optional)
- *							NULL, //ADDITIONAL MIME HEADERS (optional)
- *							NULL, //ATTACHMENTS (optional)
- *							NULL, //INLINE IMAGES (optional)
- *							NULL, //API KEY (required if not set as ENV variable)
- *							NULL); //BOUNCE ADDRESS (required if not set at ENV variable)
- *      if ($response)
- *      {
- *          // success, 
- *      } 
- *		else 
- *      {
- *      	// failure
- *      }
+Transmail Sending Example:
+
+	include_once ("./transmail/TransmailClient.php");
+	
+	$tmclient = new \Transmail\TransmailClient();
+	$response = $tmclient->send(
+			"My Subject", //SUBJECT (required)
+			"My text-only message", //TEXT MSG, NULL IF sending HTML (required)
+			"<p>My HTML-formatted message</p>", //HTML MSG, NULL if sending TEXT (required)
+			array("name"=>"Joe Customer","address"=>"joe@customer.com"), //TO (required)
+			array("name"=>"XYZ Company","address"=>"web@site.com"), //FROM (required)
+			array("name"=>"XYZ Help","address"=>"suppport@site.com"), //REPLY TO (optional)
+			array("name"=>"Bob Smith","address"=>"bob@site.com"), //CC (optional)
+			array("name"=>"Joe Davis","address"=>"joe@site.com"), //BCC (optional)
+			TRUE, //TRACK CLICKS, TRUE by default (optional)
+			TRUE, //TRACK OPENS, TRUE by default (optional)
+			NULL, //CLIENT ACCOUT ID (optional)
+			NULL, //ADDITIONAL MIME HEADERS (optional)
+			NULL, //ATTACHMENTS (optional)
+			NULL, //INLINE IMAGES (optional)
+			NULL, //API KEY (required if not set as ENV variable)
+			NULL); //BOUNCE ADDRESS (required if not set at ENV variable)
+			
+	if ($response)
+	{
+		// success, 
+	} 
+	else 
+	{
+		// failure
+	}
+	
  */
 
 class TransmailClient{

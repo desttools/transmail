@@ -1,4 +1,5 @@
-# transmail
+# Transmail PHP Client
+
 Generic PHP API for Zoho's Transmail service
 
 The Transmail PHP library allows you to easily send transactional email messages via the [Zoho Transmail API](https://www.zoho.com/transmail/). The Transmail system is intended for transactional emails related to website and app interactions (receipts, password resets, 2FA notices, etc.), not bulk sending of emails like newsletters and announcements. Please see the Transmail site for details about usage guidelines.
@@ -12,16 +13,16 @@ composer require desttools/transmail
 
 Alternately, you can simply [clone this repository](https://github.com/desttools/transmail.git) directly to include the source code in your project.
 
-
 In your environment file, you'll want to create two settings:
 
 ```PHP
-transmailkey = "************transmail-key-provided-by-zoho*****************"
-transbounceaddr = "***bounce-address-set-in-transmail-settings***"
+transmailkey = "***key-from-transmail-settings***"
+transbounceaddr = "***bounce-address-from-transmail-settings***"
 ```
 
+If you aren't using environment variables in your application, you can omit this step and still pass these settings directly to the function (see full example below).
 
-To load the library in your page or app, you'll need to load the library:
+To load the library in your page or app, you'll need to include the file:
 
 ```PHP 
 // doing your own loading:
@@ -36,13 +37,13 @@ Then a basic mailing example:
 
 ```PHP 
 
-$tmclient = new TransmailClient();
+$tmclient = new \Transmail\TransmailClient();
 $response = $tmclient->send(
-	"My Subject", //SUBJECT (required)
-	"My text-only message", //TEXT MSG, NULL IF sending HTML (required)
-	"<p>My HTML-formatted message</p>", //HTML MSG, NULL if sending TEXT (required)
+	"My Subject",                                                //SUBJECT (required)
+	"My text-only message",                                      //TEXT MSG, NULL IF sending HTML (required)
+	"<p>My HTML-formatted message</p>",                          //HTML MSG, NULL if sending TEXT (required)
 	array("name"=>"Joe Customer","address"=>"joe@customer.com"), //TO (required)
-	array("name"=>"XYZ Company","address"=>"web@site.com") //FROM (required)
+	array("name"=>"XYZ Company","address"=>"web@site.com")       //FROM (required)
 	);
 
 if ($response)
@@ -58,29 +59,29 @@ else
 
 Note that all the email addresses are passed to the function as an array with values for "name" and "address." If you do not have a value for name, you can just pass the "address" value and omit "name."
 
-All the possible options, including passing authorization key by reference:
+Below are ALL the possible options, including passing authorization key by reference:
 
 
 ```PHP 
 
-$tmclient = new TransmailClient();
+$tmclient = new \Transmail\TransmailClient();
 $response = $tmclient->send(
-	"My Subject", //SUBJECT (required)
-	"My text-only message", //TEXT MSG, NULL IF sending HTML (required)
-	"<p>My HTML-formatted message</p>", //HTML MSG, NULL if sending TEXT (required)
+	"My Subject",                                                //SUBJECT (required)
+	"My text-only message",                                      //TEXT MSG, NULL IF sending HTML (required)
+	"<p>My HTML-formatted message</p>",                          //HTML MSG, NULL if sending TEXT (required)
 	array("name"=>"Joe Customer","address"=>"joe@customer.com"), //TO (required)
-	array("name"=>"XYZ Company","address"=>"web@site.com"), //FROM (required)
-	array("name"=>"XYZ Help","address"=>"support@site.com"), //REPLY TO (optional)
-	array("name"=>"Bob Smith","address"=>"bob@site.com"), //CC (optional)
-	array("name"=>"Joe Davis","address"=>"joe@site.com"), //BCC (optional)
-	TRUE, //TRACK CLICKS, TRUE by default (optional)
-	TRUE, //TRACK OPENS, TRUE by default (optional)
-	NULL, //CLIENT ACCOUT ID (optional)
-	NULL, //ADDITIONAL MIME HEADERS (optional)
-	NULL, //ATTACHMENTS (optional)
-	NULL, //INLINE IMAGES (optional)
-	NULL, //API KEY (required if not set as ENV variable)
-	NULL); //BOUNCE ADDRESS (required if not set at ENV variable)
+	array("name"=>"XYZ Company","address"=>"web@site.com"),      //FROM (required)
+	array("name"=>"XYZ Help","address"=>"support@site.com"),     //REPLY TO (optional)
+	array("name"=>"Bob Smith","address"=>"bob@site.com"),        //CC (optional)
+	array("name"=>"Joe Davis","address"=>"joe@site.com"),        //BCC (optional)
+	TRUE,                                                        //TRACK CLICKS, TRUE by default (optional)
+	TRUE,                                                        //TRACK OPENS, TRUE by default (optional)
+	NULL,                                                        //CLIENT ACCOUT ID (optional)
+	NULL,                                                        //ADDITIONAL MIME HEADERS (optional)
+	NULL,                                                        //ATTACHMENTS (optional)
+	NULL,                                                        //INLINE IMAGES (optional)
+	NULL,                                                        //API KEY (required if not set as ENV variable)
+	NULL);                                                       //BOUNCE ADDRESS (required if not set at ENV variable)
 
 if ($response)
 {
