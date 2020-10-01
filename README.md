@@ -100,7 +100,7 @@ else
 
 ## Additional Headers
 
-Passing additional headers to the email server are possible. Simple create any headers you want as an array and pass that to the function
+Passing additional headers to the email server is possible. Simple create any name-value pairs you want as an array and pass that to the function
 
 ```PHP 
 
@@ -113,15 +113,26 @@ $headers[] = array( "CustId"   => "1234",
 
 ## Sending Attachments
 
-Sending attachments means passing the attachments to the function as data streams. Since there are three parameters needed by TransMail, it is generally advised to first set up the attachments as an array and then pass that to the function:
+Sending attachments means loading the file into PHP's memory, converting to a Base64-encoded stream and then passing that to the function. Since there are three parameters needed by TransMail, it is generally advised to first set up the attachments as an array and then pass that to the function:
 
 ```PHP 
 
 $attachments = array();
 
-$attachments[] = array( "content"   => "base64-encoded-stream-of-file-content",
-			"mime_type" => "image/jpg",
-			"name"      => "filename.jpg" );
+$file = "filename.jpg";
+$path = "/path/to/" . $file;
+$filedata = file_get_contents($path);
+
+if ($filedata) 
+{
+
+	$base64 = base64_encode($filedata);
+
+	$attachments[] = array( "content"   => $base64,
+				"mime_type" => mime_content_type($path),
+				"name"      => $file );
+
+}
 
 
 ```
