@@ -1,28 +1,42 @@
-# TransMail PHP Client
+# TransMail API PHP Client
 
-Generic PHP API for Zoho's TransMail service
+Generic PHP API Client for Zoho's TransMail service
 
-The TransMail PHP library allows you to easily send transactional email messages via the [Zoho TransMail API](https://www.zoho.com/transmail/). 
+This unofficial TransMail PHP library allows you to easily send transactional email messages via the [Zoho TransMail API](https://www.zoho.com/transmail/). 
 The TransMail system is intended for transactional emails related to website and app interactions (receipts, password resets, 2FA notices, etc.), not bulk sending of emails like newsletters and announcements. 
 Please see the [TransMail site](https://www.zoho.com/transmail/) for details about use cases and guidelines.
 
 
 ## Installation
+
 For most uses we recommend installing the [desttools/transmail](https://packagist.org/packages/desttools/transmail) package via Composer. If you have [Composer](https://getcomposer.org) installed already, you can add the latest version of the package with the following command:
 ```
 composer require desttools/transmail
 ```
 
+Or if you're adding this library to an application, in your composer.json file
+
+```
+"require": {
+	"desttools/transmail": "dev-master"
+},
+
+```
+
 Alternately, you can simply [clone this repository](https://github.com/desttools/transmail.git) directly to include the source code in your project.
 
-In your environment file, you'll want to create two settings:
+## Settings
 
-```PHP
+Before you can connect to the API, you'll need two settings from your TransMail account: an **authorization key** and a **bounce address**
+
+If you are using an environment file, you'll want to create settings with these values:
+
+```
 transmailkey = "***key-from-transmail-settings***"
 transbounceaddr = "***bounce-address-from-transmail-settings***"
 ```
 
-If you aren't using environment variables in your application, you can omit this step and still pass these settings directly to the function (see full example below).
+If you aren't using environment variables in your application, you can omit this step and pass these settings directly to the function (see full example below).
 
 To load the library in your page or app, you'll need to include the file:
 
@@ -100,7 +114,7 @@ else
 
 ## Additional Headers
 
-Passing additional headers to the email server is possible. Simple create any name-value pairs you want as an array and pass that to the function
+Passing additional headers to the email server is possible. Simply create any name-value pairs you want as an array and pass that to the function
 
 ```PHP 
 
@@ -136,8 +150,10 @@ if ($filedata)
 
 
 ```
-[List of supported/unsupported attachments](https://www.zoho.com/transmail/help/file-cache.html#alink-un-sup-for)
+
+[List of unsupported attachments](https://www.zoho.com/transmail/help/file-cache.html#alink-un-sup-for)
 
 
-### [Zoho Transmail API Documentation](https://www.zoho.com/transmail/help/smtp-api.html)
-Details the SMTP and API options with the Transmail system. NOTE: This library only sends messages through the Transmail API system. If you are attempting to send via SMTP, please consult the documentation for your web or email server's mail program.
+### [Zoho TransMail API Documentation](https://www.zoho.com/transmail/help/smtp-api.html)
+
+NOTE: This library only sends messages through the TransMail API system. If you are attempting to send via SMTP, please consult the documentation for your web or email server's mail program for SMTP relaying.
