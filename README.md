@@ -59,8 +59,8 @@ Note: Your ability to send messages also requires that the sender's domain is pr
 $tmclient = new \Transmail\TransmailClient();
 $response = $tmclient->send(
 	"My Subject",                                                //SUBJECT (string, required)
-	"My text-only message",                                      //TEXT MSG, NULL IF sending HTML (string, required)
-	"<p>My HTML-formatted message</p>",                          //HTML MSG, NULL if sending TEXT (string, required)
+	"My text-only message",                                      //TEXT MSG, NULL to only send HTML (string, required)
+	"<p>My HTML-formatted message</p>",                          //HTML MSG, NULL to only send TEXT (string, required)
 	array("name"=>"Joe Customer","address"=>"joe@customer.com"), //TO (array, required)
 	array("name"=>"XYZ Company","address"=>"web@site.com")       //FROM (array, required)
 	);
@@ -87,8 +87,8 @@ Below are ALL the possible options, including passing the authorization key and 
 $tmclient = new \Transmail\TransmailClient();
 $response = $tmclient->send(
 	"My Subject",                                                //SUBJECT (string, required)
-	"My text-only message",                                      //TEXT MSG, NULL IF sending HTML (string, required)
-	"<p>My HTML-formatted message</p>",                          //HTML MSG, NULL if sending TEXT (string, required)
+	"My text-only message",                                      //TEXT MSG, NULL to only send HTML (string, required)
+	"<p>My HTML-formatted message</p>",                          //HTML MSG, NULL to only send TEXT (string, required)
 	array("name"=>"Joe Customer","address"=>"joe@customer.com"), //TO (array, required)
 	array("name"=>"XYZ Company","address"=>"web@site.com"),      //FROM (array, required)
 	array("name"=>"XYZ Help","address"=>"support@site.com"),     //REPLY TO (array, optional)
@@ -128,7 +128,9 @@ In the event of a cURL error, a string will be returned with the specific PHP er
 
 In the event of API success or failure, a JSON object with the entire API response will be returned. Consult the TransMail documentation for error codes and other details about these messages.
 
-Security Note: These verbose messages could divulge sensitive info about your site or your TransMail account, so errors **should be captured or turned off in a production setting**.
+[TransMail API Error Codes](https://www.zoho.com/transmail/help/api/error-codes.html)
+
+**Security Note: These verbose messages could divulge sensitive info about your site or your TransMail account, so errors should be captured or turned off in a production setting**.
 
 ## Additional Headers
 
