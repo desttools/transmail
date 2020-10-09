@@ -23,11 +23,12 @@ Transmail Sending Example:
 			NULL, //ATTACHMENTS (array, optional)
 			NULL, //INLINE IMAGES (array, optional)
 			NULL, //API KEY (required if not set as ENV variable)
-			NULL); //BOUNCE ADDRESS (required if not set at ENV variable)
+			NULL, //BOUNCE ADDRESS (required if not set at ENV variable)
+			FALSE); //VERBOSE ERRORS, returns true/false by default
 			
 	if ($response)
 	{
-		// success, 
+		// success
 	} 
 	else 
 	{
@@ -56,7 +57,9 @@ class TransmailClient{
 							$attachments=NULL,
 							$inline_images=NULL,
 							$key=NULL,
-							$bounce_address=NULL){
+							$bounce_address=NULL,
+							$verbose=FALSE){
+			
 			
 			//set required auth key, provided in Transmail settings
 			if (getenv('transmailkey')){
@@ -143,14 +146,36 @@ class TransmailClient{
 			// Close cURL session handle
             curl_close($crl);
 
-            // handle curl error
+           
             if ($result === false) {
-                // throw new Exception('Curl error: ' . curl_error($crl));
-                //print_r('Curl error: ' . curl_error($crl));
-                return false;
+				// curl error
+				if ($verbose){
+					return 'Curl error: ' . curl_error($crl);
+				} else {
+					return false;	
+				}
+                
             } else {
+				//got response from API, yay!
+				$apiresp = json_decode($result);
+				
+				if ($verbose){
+					
+					return $apiresp;
+					
+				} else {
+					
+					if(isset($apiresp->data)){
+						
+						return true;
+						
+					} else {
+						
+						return false;
+						
+					}
+				}
 
-                return true;
             }
             
         }

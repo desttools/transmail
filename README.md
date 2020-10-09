@@ -49,6 +49,9 @@ include_once ('./vendor/autoload.php');
 
 ```
 
+Note: Your ability to send messages also requires that the sender's domain is pre-verified in your TransMail dashboard. Without that, you will see authentication errors.
+
+
 ## Basic Mailing Example:
 
 ```PHP 
@@ -64,7 +67,7 @@ $response = $tmclient->send(
 
 if ($response)
 {
-// success, 
+// success
 } 
 else 
 {
@@ -98,12 +101,13 @@ $response = $tmclient->send(
 	NULL,                                                        //ATTACHMENTS (array, optional)
 	NULL,                                                        //INLINE IMAGES (array, optional)
 	NULL,                                                        //API KEY (string, required if not set as ENV var)
-	NULL                                                         //BOUNCE ADDRESS (string, required if not ENV var)
+	NULL,                                                        //BOUNCE ADDRESS (string, required if not ENV var)
+	FALSE                                                        //VERBOSE ERRORS, FALSE returns true/false by default
 	);
 
 if ($response)
 {
-// success, 
+// success
 } 
 else 
 {
@@ -111,6 +115,20 @@ else
 }
 
 ```
+
+## Error Handling
+
+There is a last parameter that can be passed to the function to turn on verbose error reporting. By default, this is off and the function returns **TRUE** (message sent) and **FALSE** (message not sent).
+
+There are two main possible points of failure that can occur: The cURL request could fail, or the API request could fail. In both cases, the function will return a generic **FALSE** unless you have verbose errors turned on. 
+
+### With Verbose Errors Turned On:
+
+In the event of a cURL error, a string will be returned with the specific PHP error code.
+
+In the event of API success or failure, a JSON object with the entire API response will be returned. Consult the TransMail documentation for error codes and other details about these messages.
+
+Security Note: These verbose messages could divulge sensitive info about your site or your TransMail account, so errors **should be captured or turned off in a production setting**.
 
 ## Additional Headers
 
@@ -140,14 +158,13 @@ $filedata = file_get_contents($path);
 if ($filedata) 
 {
 
-	$base64 = base64_encode($filedata);
+$base64 = base64_encode($filedata);
 
-	$attachments[] = array( "content"   => $base64,
-				"mime_type" => mime_content_type($path),
-				"name"      => $file );
+$attachments[] = array( "content"   => $base64,
+			"mime_type" => mime_content_type($path),
+			"name"      => $file );
 
 }
-
 
 ```
 
