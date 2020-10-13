@@ -6,25 +6,31 @@ Transmail Sending Example:
 
 	include_once ("./transmail/TransmailClient.php");
 	
-	$tmclient = new \Transmail\TransmailClient();
-	$response = $tmclient->send(
-			"My Subject", //SUBJECT (required)
-			"My text-only message", //TEXT MSG, NULL IF sending HTML (required)
-			"<p>My HTML-formatted message</p>", //HTML MSG, NULL if sending TEXT (required)
-			array("name"=>"Joe Customer","address"=>"joe@customer.com"), //TO (required)
-			array("name"=>"XYZ Company","address"=>"web@site.com"), //FROM (required)
-			array("name"=>"XYZ Help","address"=>"suppport@site.com"), //REPLY TO (optional)
-			array("name"=>"Bob Smith","address"=>"bob@site.com"), //CC (optional)
-			array("name"=>"Joe Davis","address"=>"joe@site.com"), //BCC (optional)
-			TRUE, //TRACK CLICKS, TRUE by default (optional)
-			TRUE, //TRACK OPENS, TRUE by default (optional)
-			NULL, //CLIENT ACCOUT ID (string, optional)
-			NULL, //ADDITIONAL MIME HEADERS (array, optional)
-			NULL, //ATTACHMENTS (array, optional)
-			NULL, //INLINE IMAGES (array, optional)
-			NULL, //API KEY (required if not set as ENV variable)
-			NULL, //BOUNCE ADDRESS (required if not set at ENV variable)
-			FALSE); //VERBOSE ERRORS, returns true/false by default
+	$tmail = new \Transmail\TransmailClient();
+	
+	//required settings
+	$tmail->subject = "My message subject"; //SUBJECT (required)
+	$tmail->textbody = "My text-only message"; //TEXT MSG, NULL IF sending HTML (required)
+	$tmail->htmlbody = "<p>My HTML-formatted message</p>"; //HTML MSG, NULL if sending TEXT (required)
+	$tmail->to = array('joe@customer.com','Joe Customer'); //TO (required)
+	$tmail->from = array('support@site.com','XYZ Company'); //FROM (required)
+	
+	//optional settings
+	$tmail->reply_to = array('address@site.com','XYZ Company'); //REPLY TO (optional)
+	$tmail->cc = array('address2@site.com','Someone'); //CC (optional)
+	$tmail->bcc = array('address3@site.com','Somebody Else'); //BCC (optional)
+	$tmail->track_clicks = TRUE; //TRACK CLICKS, TRUE by default (optional)
+	$tmail->track_opens = TRUE; //TRACK OPENS, TRUE by default (optional)
+	$tmail->client_reference = NULL; //CLIENT ID (string, optional)
+	$tmail->mime_headers = NULL; //ADDITIONAL MIME HEADERS (array, optional)
+	$tmail->attachments = NULL; //ATTACHMENTS (array, optional)
+	$tmail->inline_images = NULL; //INLINE IMAGES (array, optional)
+	$tmail->key = NULL; //API KEY (required if not set as ENV variable)
+	$tmail->bounce_address = NULL; //BOUNCE ADDRESS (required if not set at ENV variable)
+	$tmail->verbose = FALSE; //VERBOSE ERRORS, returns true/false by default
+	
+	//send the message
+	$response = $tmail->send();
 			
 	if ($response)
 	{
@@ -38,170 +44,216 @@ Transmail Sending Example:
  */
 
 class TransmailClient{
+	
+	public $subject='';
+	public $textbody;
+	public $htmlbody;
+	public $to;
+	public $from;
+	public $reply_to;
+	public $cc;
+	public $bcc;
+	public $track_clicks=TRUE;
+	public $track_opens=TRUE;
+	public $client_reference;
+	public $mime_headers;
+	public $attachments;
+	public $inline_images;
+	public $key;
+	public $bounce_address;
+	public $verbose=FALSE;
 
-        /**
-         * Sends an email message and returns the response from the API.
-         */
-        public function send($subject, //string, required
-							$textbody=NULL, //string
-							$htmlbody=NULL, //string
-							$to, //array, required
-							$from, //array, required
-							$reply_to=NULL, //array
-							$cc = NULL, //array
-							$bcc=NULL, //array
-							$track_clicks=TRUE,
-							$track_opens=TRUE,
-							$client_reference=NULL,
-							$mime_headers=NULL,
-							$attachments=NULL,
-							$inline_images=NULL,
-							$key=NULL,
-							$bounce_address=NULL,
-							$verbose=FALSE){
-			
-			
-			//set required auth key, provided in Transmail settings
-			if (getenv('transmailkey')){
-				//use env-defined key
-				$key = getenv('transmailkey');
-			} elseif ($key){
-				//use key passed as param
-				//no action here
+	
+	/**
+	 * Sends an email message and returns the response from the API.
+	 */
+	public function send(){
+
+		$data = array();
+		
+		//set required auth key, provided in Transmail settings
+		if ($this->key){
+			//no action here
+		} elseif (getenv('transmailkey')){
+			//use env-defined key
+			$this->key = getenv('transmailkey');
+		} else {
+			//no key defined, exit
+			if ($this->verbose){
+				return "ERROR: No TransMail API Key found";
 			} else {
-				//no key defined, exit
 				return FALSE;
 			}
 			
-			//set required bounce address, defined in Transmail settings
-			if (getenv('transbounceaddr')){
-				//use env-defined key
-				$bounce_address = getenv('transbounceaddr');
-			} elseif ($bounce_address){
-				//use key passed as param
-				//no action here
+		}
+
+		//set required bounce address, defined in Transmail settings
+		if ($this->bounce_address){
+			//use key passed as param
+			//no action here
+		} elseif (getenv('transbounceaddr')){
+			//use env-defined key
+			$this->bounce_address = getenv('transbounceaddr');
+		} else {
+			//no key defined, exit
+			if ($this->verbose){
+				return "ERROR: Required TransMail bounce address not found";
 			} else {
-				//no key defined, exit
 				return FALSE;
 			}
-            
-			$data = array();
-			
-			$data['subject'] = $subject;
-			
-			$data['to'] = "[".$this->jsonifyArray($to, TRUE)."]";
-			$data['from'] = $this->jsonifyArray($from);
-			$data['bounce_address'] = $bounce_address;
-			if ($textbody){
-				$data['textbody'] = $textbody;
-			}
-			if ($htmlbody){
-				$data['htmlbody'] = $htmlbody;
-			}
-			if ($cc){
-				$data['cc'] = $this->jsonifyArray($cc);
-			}
-			if ($bcc){
-				$data['bcc'] = $this->jsonifyArray($bcc);
-			}
-			if ($track_clicks){
-				$data['track_clicks'] = $track_clicks;
-			}
-			if ($track_opens){
-				$data['track_opens'] = $track_opens;
-			}
-			if ($client_reference){
-				$data['client_reference'] = $client_reference;
-			}
-			if ($mime_headers){
-				$data['mime_headers'] = json_encode($mime_headers);
-			}
-			if ($attachments){
-				$data['attachments'] = json_encode($attachments);
-			}
-			if ($inline_images){
-				$data['inline_images'] = json_encode($inline_images);
-			}
-			
+		}
 
-            $post_data = json_encode($data);
+		
+		$data['subject'] = $this->subject;
 
-            // Prepare new cURL resource
-            $crl = curl_init('https://api.transmail.com/v1.1/email');
-            curl_setopt($crl, CURLOPT_RETURNTRANSFER, true);
-            curl_setopt($crl, CURLINFO_HEADER_OUT, true);
-            curl_setopt($crl, CURLOPT_POST, true);
-            curl_setopt($crl, CURLOPT_POSTFIELDS, $post_data);
+		$data['to'] = "[".$this->formatAddress($this->to, TRUE)."]";
+		$data['from'] = $this->formatAddress($this->from);
+		$data['bounce_address'] = $this->bounce_address;
+		if ($this->textbody){
+			$data['textbody'] = $this->textbody;
+		}
+		if ($this->htmlbody){
+			$data['htmlbody'] = $this->htmlbody;
+		}
+		if ($this->reply_to){
+			$data['reply_to'] = $this->formatAddress($this->reply_to);
+		}
+		if ($this->cc){
+			$data['cc'] = $this->formatAddress($this->cc);
+		}
+		if ($this->bcc){
+			$data['bcc'] = $this->formatAddress($this->bcc);
+		}
+		if ($this->track_clicks){
+			$data['track_clicks'] = $this->track_clicks;
+		}
+		if ($this->track_opens){
+			$data['track_opens'] = $this->track_opens;
+		}
+		if ($this->client_reference){
+			$data['client_reference'] = $this->client_reference;
+		}
+		if ($this->mime_headers){
+			$data['mime_headers'] = json_encode($this->mime_headers);
+		}
+		if ($this->attachments){
+			$data['attachments'] = json_encode($this->attachments);
+		}
+		if ($this->inline_images){
+			$data['inline_images'] = json_encode($this->inline_images);
+		}
 
-            // Set HTTP Header for POST request 
-            curl_setopt($crl, CURLOPT_HTTPHEADER, array(
-                'Accept: application/json',
-                'Content-Type: application/json',
-                'Authorization:Zoho-enczapikey ' . $key)
-            );
 
-            // Submit the POST request
-            $result = curl_exec($crl);
-			
-			// Close cURL session handle
-            curl_close($crl);
+		$post_data = json_encode($data);
 
-           
-            if ($result === false) {
-				// curl error
-				if ($verbose){
-					return 'Curl error: ' . curl_error($crl);
+		// Prepare new cURL resource
+		$crl = curl_init('https://api.transmail.com/v1.1/email');
+		curl_setopt($crl, CURLOPT_RETURNTRANSFER, true);
+		curl_setopt($crl, CURLINFO_HEADER_OUT, true);
+		curl_setopt($crl, CURLOPT_POST, true);
+		curl_setopt($crl, CURLOPT_POSTFIELDS, $post_data);
+
+		// Set HTTP Header for POST request 
+		curl_setopt($crl, CURLOPT_HTTPHEADER, array(
+			'Accept: application/json',
+			'Content-Type: application/json',
+			'Authorization:Zoho-enczapikey ' . $this->key)
+		);
+
+		// Submit the POST request
+		$result = curl_exec($crl);
+
+		// Close cURL session handle
+		curl_close($crl);
+
+
+		if ($result === false) {
+			// curl error
+			if ($this->verbose){
+				return 'Curl error: ' . curl_error($crl);
+			} else {
+				return false;	
+			}
+
+		} else {
+			//got response from API, yay!
+			$apiresp = json_decode($result);
+
+			if ($this->verbose){
+
+				return $apiresp;
+
+			} else {
+
+				if(isset($apiresp->data)){
+
+					return true;
+
 				} else {
-					return false;	
+
+					return false;
+
 				}
-                
-            } else {
-				//got response from API, yay!
-				$apiresp = json_decode($result);
+			}
+
+		}
+
+	}
+
+
+
+	/**
+	 * Helper function to format email address pairs
+	 */
+	private function formatAddress($addy, $nest=FALSE){
+		
+		$finalarray = array();
+		
+		if (is_array($addy)){
+			//array passed
+			
+			if ($nest){
 				
-				if ($verbose){
-					
-					return $apiresp;
-					
-				} else {
-					
-					if(isset($apiresp->data)){
-						
-						return true;
-						
+				if (isset($addy[0]) && filter_var($addy[0], FILTER_VALIDATE_EMAIL)){
+					$finalarray['address'] = $addy[0];
+					if (isset($addy[1])){
+						$finalarray['email_address']['name'] = $addy[1];
 					} else {
-						
-						return false;
-						
+						$finalarray['email_address']['name'] = $addy[0];
 					}
+				} elseif (isset($addy[1]) && filter_var($addy[1], FILTER_VALIDATE_EMAIL)){
+					$finalarray['email_address']['address'] = $addy[1];
+					$finalarray['email_address']['name'] = $addy[0];
 				}
-
-            }
-            
-        }
-
-
-
-        /**
-         * Helper function to format email address pairs
-         */
-        private function jsonifyArray($array, $nest=FALSE){
-			
-			$finalarray = array();
-			if (isset($array['address']) && isset($array['name']) && !$nest){
-				$finalarray['address'] = $array['address'];
-				$finalarray['name'] = $array['name'];
-			} elseif (isset($array['address']) && !$nest){
-				$finalarray['address'] = $array['address'];
-				$finalarray['name'] = $array['address'];
-			} elseif (isset($array['address']) && isset($array['name']) && $nest){
-				$finalarray['email_address']['address'] = $array['address'];
-				$finalarray['email_address']['name'] = $array['name'];
-			} elseif (isset($array['address']) && $nest){
-				$finalarray['email_address']['address'] = $array['address'];
-				$finalarray['email_address']['name'] = $array['address'];
+				
+			} else {
+				
+				if (isset($addy[0]) && filter_var($addy[0], FILTER_VALIDATE_EMAIL)){
+					$finalarray['address'] = $addy[0];
+					if (isset($addy[1])){
+						$finalarray['name'] = $addy[1];
+					} else {
+						$finalarray['name'] = $addy[0];
+					}
+				} elseif (isset($addy[1]) && filter_var($addy[1], FILTER_VALIDATE_EMAIL)){
+					$finalarray['address'] = $addy[1];
+					$finalarray['name'] = $addy[0];
+				}
+				
 			}
 			
-			return json_encode($finalarray);
-        } 
+		} else {
+			//string address passed
+			if ($nest){
+				$finalarray['email_address']['address'] = $addy;
+				$finalarray['email_address']['name'] = $addy;
+			} else {
+				$finalarray['address'] = $addy;
+				$finalarray['name'] = $addy;
+			}
+			
+		}
+
+		return json_encode($finalarray);
+	} 
 }
