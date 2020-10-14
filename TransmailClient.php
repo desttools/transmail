@@ -190,7 +190,7 @@ class TransmailClient{
 			if ($nest){
 				
 				if (isset($addy[0]) && filter_var($addy[0], FILTER_VALIDATE_EMAIL)){
-					$finalarray['address'] = $addy[0];
+					$finalarray['email_address']['address'] = $addy[0];
 					if (isset($addy[1])){
 						$finalarray['email_address']['name'] = $addy[1];
 					} else {
