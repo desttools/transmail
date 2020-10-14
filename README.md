@@ -10,6 +10,7 @@ Please see the [TransMail site](https://www.zoho.com/transmail/) for details abo
 ## Installation
 
 For most uses we recommend installing the [desttools/transmail](https://packagist.org/packages/desttools/transmail) package via Composer. If you have [Composer](https://getcomposer.org) installed already, you can add the latest version of the package with the following command:
+
 ```
 composer require desttools/transmail
 ```
@@ -29,14 +30,14 @@ Alternately, you can simply [clone this repository](https://github.com/desttools
 
 Before you can connect to the API, you'll need two settings from your TransMail account: an **authorization key** and a **bounce address**
 
-If you are using an environment file, you'll want to create settings with these values:
+If you are using an environment file, you'll want to create settings with these setting:
 
 ```
-transmailkey = "***key-from-transmail-settings***"
-transbounceaddr = "***bounce-address-from-transmail-settings***"
+transmailkey = "MyAPIkeyfromTransMail"
+transbounceaddr = "bounce@bounce.mydomain.com"
 ```
 
-If you aren't using environment variables in your application, you can omit this step and pass these settings directly to the function (see full example below).
+If you aren't using environment variables in your application, you can omit this step and pass these settings directly to the mailer (see full example below).
 
 To load the library in your page or app, you'll need to include the file:
 
@@ -56,14 +57,21 @@ Note: Your ability to send messages also requires that the sender's domain is pr
 
 ```PHP 
 
-$tmclient = new \Transmail\TransmailClient();
-$response = $tmclient->send(
-	"My Subject",                                                //SUBJECT (string, required)
-	"My text-only message",                                      //TEXT MSG, NULL to only send HTML (string, required)
-	"<p>My HTML-formatted message</p>",                          //HTML MSG, NULL to only send TEXT (string, required)
-	array("name"=>"Joe Customer","address"=>"joe@customer.com"), //TO (array, required)
-	array("name"=>"XYZ Company","address"=>"web@site.com")       //FROM (array, required)
-	);
+//create a new message object
+$msg = new \stdClass();
+
+//required settings
+$msg->subject = "My message subject"; //SUBJECT
+$msg->textbody = "My text-only message"; //TEXT MSG, NULL IF sending HTML
+$msg->htmlbody = "<p>My HTML-formatted message</p>"; //HTML MSG, NULL if sending TEXT
+$msg->to = array('joe@customer.com','Joe Customer'); //TO
+$msg->from = array('support@site.com','XYZ Company'); //FROM
+
+//instantiate library and pass info
+$tmail = new \Transmail\TransmailClient($msg);
+
+//send the message
+$response = $tmail->send();
 
 if ($response)
 {
@@ -76,49 +84,62 @@ else
 
 ```
 
-Note that all the email addresses are passed to the function as an array with values for "name" and "address." If you do not have a value for name, you can just pass the "address" value and omit "name."
+Note: You can pass all email addresses either as a string or as an array, like this:
+
+```PHP 
+$msg->to = 'joe@customer.com'; 
+//or
+$msg->to = array('joe@customer.com','Joe Customer');
+```
+If using an array, the formatter will look for the email address in either the first or second element position. If it finds an address, it will use the remaining element as the text name. If additional elements are passed here they will be ignored.
 
 ## Full Example
 
-Below are ALL the possible options, including passing the authorization key and bounce address by reference:
+Below are ALL the possible options, including manually setting an authorization key and bounce address:
 
 ```PHP 
 
-$tmclient = new \Transmail\TransmailClient();
-$response = $tmclient->send(
-	"My Subject",                                                //SUBJECT (string, required)
-	"My text-only message",                                      //TEXT MSG, NULL to only send HTML (string, required)
-	"<p>My HTML-formatted message</p>",                          //HTML MSG, NULL to only send TEXT (string, required)
-	array("name"=>"Joe Customer","address"=>"joe@customer.com"), //TO (array, required)
-	array("name"=>"XYZ Company","address"=>"web@site.com"),      //FROM (array, required)
-	array("name"=>"XYZ Help","address"=>"support@site.com"),     //REPLY TO (array, optional)
-	array("name"=>"Bob Smith","address"=>"bob@site.com"),        //CC (array, optional)
-	array("name"=>"Joe Davis","address"=>"joe@site.com"),        //BCC (array, optional)
-	TRUE,                                                        //TRACK CLICKS, TRUE by default (boolean, optional)
-	TRUE,                                                        //TRACK OPENS, TRUE by default (boolean, optional)
-	NULL,                                                        //CLIENT ACCOUT ID (string, optional)
-	NULL,                                                        //ADDITIONAL MIME HEADERS (array, optional)
-	NULL,                                                        //ATTACHMENTS (array, optional)
-	NULL,                                                        //INLINE IMAGES (array, optional)
-	NULL,                                                        //API KEY (string, required if not set as ENV var)
-	NULL,                                                        //BOUNCE ADDRESS (string, required if not ENV var)
-	FALSE                                                        //VERBOSE ERRORS, FALSE returns true/false by default
-	);
-
-if ($response)
-{
-// success
-} 
-else 
-{
-// failure
-}
+	//create a new message object
+	$msg = new \stdClass();
+	
+	//required settings
+	$msg->subject = "My message subject"; //SUBJECT
+	$msg->textbody = "My text-only message"; //TEXT MSG, NULL IF sending HTML
+	$msg->htmlbody = "<p>My HTML-formatted message</p>"; //HTML MSG, NULL if sending TEXT
+	$msg->to = array('joe@customer.com','Joe Customer'); //TO
+	$msg->from = array('support@site.com','XYZ Company'); //FROM
+	
+	//optional settings
+	$msg->reply_to = array('address@site.com','XYZ Company'); //REPLY TO
+	$msg->cc = array('address2@site.com','Someone'); //CC
+	$msg->bcc = array('address3@site.com','Somebody Else'); //BCC
+	$msg->track_clicks = TRUE; //TRACK CLICKS, TRUE by default
+	$msg->track_opens = TRUE; //TRACK OPENS, TRUE by default
+	$msg->client_reference = NULL; //CLIENT ID (string)
+	$msg->mime_headers = NULL; //ADDITIONAL MIME HEADERS (array)
+	$msg->attachments = NULL; //ATTACHMENTS (array)
+	$msg->inline_images = NULL; //INLINE IMAGES (array)
+	
+	//instantiate library and pass all possible settings
+	$tmail = new \Transmail\TransmailClient($msg, "myapikey", "mybounce@address.com", TRUE);
+	
+	//send the message
+	$response = $tmail->send();
+			
+	if ($response)
+	{
+		// success
+	} 
+	else 
+	{
+		// failure
+	}
 
 ```
 
 ## Error Handling
 
-There is a last parameter that can be passed to the function to turn on verbose error reporting. By default, this is off and the function returns **TRUE** (message sent) and **FALSE** (message not sent).
+When you actually load the library, there is a 4th parameter that can be passed to turn on verbose error reporting. By default, this is off and the function returns **TRUE** (message sent) and **FALSE** (message not sent).
 
 There are two main possible points of failure that can occur: The cURL request could fail, or the API request could fail. In both cases, the function will return a generic **FALSE** unless you have verbose errors turned on. 
 

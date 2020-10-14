@@ -90,7 +90,7 @@ class TransmailClient{
 			$this->data['htmlbody'] = $msg->htmlbody;
 		}
 		if (isset($msg->to)){
-			$this->data['to'] = array($this->formatAddress($msg->to, TRUE));
+			$this->data['to'][] = $this->formatAddress($msg->to, TRUE);
 		}
 		if (isset($msg->from)){
 			$this->data['from'] = $this->formatAddress($msg->from);
