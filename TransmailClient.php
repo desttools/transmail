@@ -2,13 +2,13 @@
 namespace Transmail;
 
 /**
-Transmail Sending Example:
+TransMail Sending Example:
 
 	//include file if not using autoloader
 	include_once ("./transmail/TransmailClient.php");
 	
 	//create a new message object
-	$msg = new stdClass();
+	$msg = new \stdClass();
 	
 	//required settings
 	$msg->subject = "My message subject"; //SUBJECT
@@ -50,7 +50,6 @@ class TransmailClient{
 	//defaults
 	public $data = array();
 	public $key;
-	public $bounce_address;
 	public $verbose;
 	
 	//apply settings
@@ -69,9 +68,9 @@ class TransmailClient{
 		}
 		
 		if ($bounce){
-			$this->bounce_address = $bounce;
+			$this->data['bounce_address'] = $bounce;
 		} elseif (getenv('transbounceaddr')){
-			$this->bounce_address = getenv('transbounceaddr');
+			$this->data['bounce_address'] = getenv('transbounceaddr');
 		} else {
 			if ($verbose){
 				return "ERROR: No TransMail bounce address provided";
@@ -130,14 +129,12 @@ class TransmailClient{
 	//send actual message
 	public function send(){
 
-		$post_data = json_encode($this->data);
-
 		// Prepare new cURL resource
 		$crl = curl_init('https://api.transmail.com/v1.1/email');
 		curl_setopt($crl, CURLOPT_RETURNTRANSFER, true);
 		curl_setopt($crl, CURLINFO_HEADER_OUT, true);
 		curl_setopt($crl, CURLOPT_POST, true);
-		curl_setopt($crl, CURLOPT_POSTFIELDS, $post_data);
+		curl_setopt($crl, CURLOPT_POSTFIELDS, json_encode($this->data));
 
 		// Set HTTP Header for POST request 
 		curl_setopt($crl, CURLOPT_HTTPHEADER, array(
