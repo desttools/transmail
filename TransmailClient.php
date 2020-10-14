@@ -4,30 +4,32 @@ namespace Transmail;
 /**
 Transmail Sending Example:
 
+	//include file if not using autoloader
 	include_once ("./transmail/TransmailClient.php");
 	
-	$tmail = new \Transmail\TransmailClient();
+	//create a new message object
+	$msg = new stdClass();
 	
 	//required settings
-	$tmail->subject = "My message subject"; //SUBJECT (required)
-	$tmail->textbody = "My text-only message"; //TEXT MSG, NULL IF sending HTML (required)
-	$tmail->htmlbody = "<p>My HTML-formatted message</p>"; //HTML MSG, NULL if sending TEXT (required)
-	$tmail->to = array('joe@customer.com','Joe Customer'); //TO (required)
-	$tmail->from = array('support@site.com','XYZ Company'); //FROM (required)
+	$msg->subject = "My message subject"; //SUBJECT
+	$msg->textbody = "My text-only message"; //TEXT MSG, NULL IF sending HTML
+	$msg->htmlbody = "<p>My HTML-formatted message</p>"; //HTML MSG, NULL if sending TEXT
+	$msg->to = array('joe@customer.com','Joe Customer'); //TO
+	$msg->from = array('support@site.com','XYZ Company'); //FROM
 	
 	//optional settings
-	$tmail->reply_to = array('address@site.com','XYZ Company'); //REPLY TO (optional)
-	$tmail->cc = array('address2@site.com','Someone'); //CC (optional)
-	$tmail->bcc = array('address3@site.com','Somebody Else'); //BCC (optional)
-	$tmail->track_clicks = TRUE; //TRACK CLICKS, TRUE by default (optional)
-	$tmail->track_opens = TRUE; //TRACK OPENS, TRUE by default (optional)
-	$tmail->client_reference = NULL; //CLIENT ID (string, optional)
-	$tmail->mime_headers = NULL; //ADDITIONAL MIME HEADERS (array, optional)
-	$tmail->attachments = NULL; //ATTACHMENTS (array, optional)
-	$tmail->inline_images = NULL; //INLINE IMAGES (array, optional)
-	$tmail->key = NULL; //API KEY (required if not set as ENV variable)
-	$tmail->bounce_address = NULL; //BOUNCE ADDRESS (required if not set at ENV variable)
-	$tmail->verbose = FALSE; //VERBOSE ERRORS, returns true/false by default
+	$msg->reply_to = array('address@site.com','XYZ Company'); //REPLY TO
+	$msg->cc = array('address2@site.com','Someone'); //CC
+	$msg->bcc = array('address3@site.com','Somebody Else'); //BCC
+	$msg->track_clicks = TRUE; //TRACK CLICKS, TRUE by default
+	$msg->track_opens = TRUE; //TRACK OPENS, TRUE by default
+	$msg->client_reference = NULL; //CLIENT ID (string)
+	$msg->mime_headers = NULL; //ADDITIONAL MIME HEADERS (array)
+	$msg->attachments = NULL; //ATTACHMENTS (array)
+	$msg->inline_images = NULL; //INLINE IMAGES (array)
+	
+	//instantiate library and pass info
+	$tmail = new \Transmail\TransmailClient($msg, "myapikey", "mybounce@address.com", TRUE);
 	
 	//send the message
 	$response = $tmail->send();
@@ -45,106 +47,90 @@ Transmail Sending Example:
 
 class TransmailClient{
 	
-	public $subject='';
-	public $textbody;
-	public $htmlbody;
-	public $to;
-	public $from;
-	public $reply_to;
-	public $cc;
-	public $bcc;
-	public $track_clicks=TRUE;
-	public $track_opens=TRUE;
-	public $client_reference;
-	public $mime_headers;
-	public $attachments;
-	public $inline_images;
+	//defaults
+	public $data = array();
 	public $key;
 	public $bounce_address;
 	public $verbose=FALSE;
-
 	
-	/**
-	 * Sends an email message and returns the response from the API.
-	 */
-	public function send(){
-
-		$data = array();
-		
-		//set required auth key, provided in Transmail settings
-		if ($this->key){
-			//no action here
+	//apply real settings
+	function __construct($msg, $key=NULL, $bounce=NULL, $verbose=FALSE) {
+		//connection settings
+		if ($key){
+			$this->key = $key;
 		} elseif (getenv('transmailkey')){
-			//use env-defined key
 			$this->key = getenv('transmailkey');
 		} else {
-			//no key defined, exit
-			if ($this->verbose){
+			if ($verbose){
 				return "ERROR: No TransMail API Key found";
 			} else {
 				return FALSE;
 			}
-			
 		}
-
-		//set required bounce address, defined in Transmail settings
-		if ($this->bounce_address){
-			//use key passed as param
-			//no action here
+		
+		if ($bounce){
+			$this->key = $bounce;
 		} elseif (getenv('transbounceaddr')){
-			//use env-defined key
-			$this->bounce_address = getenv('transbounceaddr');
+			$this->key = getenv('transbounceaddr');
 		} else {
-			//no key defined, exit
-			if ($this->verbose){
-				return "ERROR: Required TransMail bounce address not found";
+			if ($verbose){
+				return "ERROR: No TransMail bounce address provided";
 			} else {
 				return FALSE;
 			}
 		}
-
 		
-		$data['subject'] = $this->subject;
+		//populate message details
+		if (isset($msg->subject)){
+			$this->data['subject'] = $msg->subject;
+		}
+		if (isset($msg->textbody)){
+			$this->data['textbody'] = $msg->textbody;
+		}
+		if (isset($msg->htmlbody)){
+			$this-data['>htmlbody'] = $msg->htmlbody;
+		}
+		if (isset($msg->to)){
+			$this->data['to'] = "[".$this->formatAddress($msg->to, TRUE)."]";
+		}
+		if (isset($msg->from)){
+			$this->data['from'] = $this->formatAddress($msg->from);
+		}
+		if (isset($msg->reply_to)){
+			$this->data['reply_to'] = $this->formatAddress($msg->reply_to);
+		}
+		if (isset($msg->cc)){
+			$this->data['cc'] = $this->formatAddress($msg->cc);
+		}
+		if (isset($msg->bcc)){
+			$this->data['bcc'] = $this->formatAddress($msg->bcc);
+		}
+		if (isset($msg->track_clicks)){
+			$this->data['track_clicks'] = $msg->track_clicks;
+		}
+		if (isset($msg->track_opens)){
+			$this->data['track_opens'] = $msg->track_opens;
+		}
+		if (isset($msg->client_reference)){
+			$this->data['client_reference'] = $msg->client_reference;
+		}
+		if (isset($msg->mime_headers)){
+			$this->data['mime_headers'] = $msg->mime_headers;
+		}
+		if (isset($msg->attachments)){
+			$this->data['attachments'] = $msg->attachments;
+		}
+		if (isset($msg->inline_images)){
+			$this->data['inline_images'] = $msg->inline_images;
+		}
 
-		$data['to'] = "[".$this->formatAddress($this->to, TRUE)."]";
-		$data['from'] = $this->formatAddress($this->from);
-		$data['bounce_address'] = $this->bounce_address;
-		if ($this->textbody){
-			$data['textbody'] = $this->textbody;
-		}
-		if ($this->htmlbody){
-			$data['htmlbody'] = $this->htmlbody;
-		}
-		if ($this->reply_to){
-			$data['reply_to'] = $this->formatAddress($this->reply_to);
-		}
-		if ($this->cc){
-			$data['cc'] = $this->formatAddress($this->cc);
-		}
-		if ($this->bcc){
-			$data['bcc'] = $this->formatAddress($this->bcc);
-		}
-		if ($this->track_clicks){
-			$data['track_clicks'] = $this->track_clicks;
-		}
-		if ($this->track_opens){
-			$data['track_opens'] = $this->track_opens;
-		}
-		if ($this->client_reference){
-			$data['client_reference'] = $this->client_reference;
-		}
-		if ($this->mime_headers){
-			$data['mime_headers'] = json_encode($this->mime_headers);
-		}
-		if ($this->attachments){
-			$data['attachments'] = json_encode($this->attachments);
-		}
-		if ($this->inline_images){
-			$data['inline_images'] = json_encode($this->inline_images);
-		}
+	}
 
+	
+	//send actual message
+	public function send(){
 
-		$post_data = json_encode($data);
+		$post_data = json_encode($this->$data);
 
 		// Prepare new cURL resource
 		$crl = curl_init('https://api.transmail.com/v1.1/email');
