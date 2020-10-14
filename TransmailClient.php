@@ -162,19 +162,12 @@ class TransmailClient{
 			$apiresp = json_decode($result);
 
 			if ($this->verbose){
-
 				return $apiresp;
-
 			} else {
-
 				if(isset($apiresp->data)){
-
 					return true;
-
 				} else {
-
 					return false;
-
 				}
 			}
 
@@ -206,7 +199,11 @@ class TransmailClient{
 				} elseif (isset($addy[1]) && filter_var($addy[1], FILTER_VALIDATE_EMAIL)){
 					$finalarray['email_address']['address'] = $addy[1];
 					$finalarray['email_address']['name'] = $addy[0];
+				} else {
+					$finalarray['email_address']['address'] = $addy[0];
+					$finalarray['email_address']['name'] = $addy[1];
 				}
+
 				
 			} else {
 				
@@ -220,6 +217,9 @@ class TransmailClient{
 				} elseif (isset($addy[1]) && filter_var($addy[1], FILTER_VALIDATE_EMAIL)){
 					$finalarray['address'] = $addy[1];
 					$finalarray['name'] = $addy[0];
+				} else {
+					$finalarray['address'] = $addy[0];
+					$finalarray['name'] = $addy[1];
 				}
 				
 			}
