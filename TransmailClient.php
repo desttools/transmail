@@ -129,9 +129,6 @@ class TransmailClient{
 	//send actual message
 	public function send(){
 
-		echo json_encode($this->data);
-		echo "<br>key: ". $this->key;
-
 		// Prepare new cURL resource
 		$crl = curl_init('https://api.transmail.com/v1.1/email');
 		curl_setopt($crl, CURLOPT_RETURNTRANSFER, true);
@@ -239,7 +236,7 @@ class TransmailClient{
 			
 		}
 
-		return json_encode($finalarray);
+		return $finalarray;
 	} 
 
 }
