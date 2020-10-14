@@ -51,9 +51,9 @@ class TransmailClient{
 	public $data = array();
 	public $key;
 	public $bounce_address;
-	public $verbose=FALSE;
+	public $verbose;
 	
-	//apply real settings
+	//apply settings
 	function __construct($msg, $key=NULL, $bounce=NULL, $verbose=FALSE) {
 		//connection settings
 		if ($key){
@@ -69,9 +69,9 @@ class TransmailClient{
 		}
 		
 		if ($bounce){
-			$this->key = $bounce;
+			$this->bounce_address = $bounce;
 		} elseif (getenv('transbounceaddr')){
-			$this->key = getenv('transbounceaddr');
+			$this->bounce_address = getenv('transbounceaddr');
 		} else {
 			if ($verbose){
 				return "ERROR: No TransMail bounce address provided";
@@ -88,7 +88,7 @@ class TransmailClient{
 			$this->data['textbody'] = $msg->textbody;
 		}
 		if (isset($msg->htmlbody)){
-			$this-data['>htmlbody'] = $msg->htmlbody;
+			$this->data['htmlbody'] = $msg->htmlbody;
 		}
 		if (isset($msg->to)){
 			$this->data['to'] = "[".$this->formatAddress($msg->to, TRUE)."]";
@@ -130,7 +130,7 @@ class TransmailClient{
 	//send actual message
 	public function send(){
 
-		$post_data = json_encode($this->$data);
+		$post_data = json_encode($this->data);
 
 		// Prepare new cURL resource
 		$crl = curl_init('https://api.transmail.com/v1.1/email');
@@ -151,7 +151,6 @@ class TransmailClient{
 
 		// Close cURL session handle
 		curl_close($crl);
-
 
 		if ($result === false) {
 			// curl error
@@ -242,4 +241,5 @@ class TransmailClient{
 
 		return json_encode($finalarray);
 	} 
+
 }
