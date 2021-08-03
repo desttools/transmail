@@ -6,6 +6,9 @@ This unofficial ZeptoMail/Transmail PHP library allows you to easily send transa
 The ZeptoMail system is intended for transactional emails related to website and app interactions (receipts, password resets, 2FA notices, etc.), not bulk sending of emails like newsletters and announcements. 
 Please see the [ZeptoMail site](https://www.zoho.com/zeptomail/) for details about use cases and guidelines.
 
+## Developer Note
+
+This library was created when this service was called Transmail. Other than the name on the Zoho documentation and a new API endpoint, the API is identical as before and as of this writing continues to work even with the old Transmail endpoint. At some point in the future, I plan to update this library to reflect the new branding.
 
 ## Installation
 

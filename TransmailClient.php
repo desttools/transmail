@@ -2,7 +2,12 @@
 namespace Transmail;
 
 /**
-TransMail Sending Example:
+ * Note: This library was created when this service was called Transmail
+ * Other than updating some wording for the new ZeptoMail branding 
+ * and the new API endpoint, it remails largely unchanged
+ * 
+ * 
+ZeptoMail / TransMail Sending Example:
 
 	//include file if not using autoloader
 	include_once ("./transmail/TransmailClient.php");
@@ -130,7 +135,7 @@ class TransmailClient{
 	public function send(){
 
 		// Prepare new cURL resource
-		$crl = curl_init('https://api.transmail.com/v1.1/email');
+		$crl = curl_init('https://api.zeptomail.com/v1.1/email');
 		curl_setopt($crl, CURLOPT_RETURNTRANSFER, true);
 		curl_setopt($crl, CURLINFO_HEADER_OUT, true);
 		curl_setopt($crl, CURLOPT_POST, true);

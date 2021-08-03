@@ -1,9 +1,9 @@
 {
     "name": "desttools/transmail",
     "type": "library",
-    "description": "TransMail Email Client Library for PHP",
+    "description": "ZeptoMail / TransMail Email Client Library for PHP",
     "keywords": ["zoho", "email", "deliverability", "transmail"],
-    "homepage": "https://www.zoho.com/transmail/",
+    "homepage": "https://www.zoho.com/zeptomail/",
     "license": "MIT",
     "authors": [
         {
