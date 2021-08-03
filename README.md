@@ -1,10 +1,10 @@
-# TransMail API PHP Client
+# Zoho ZeptoMail API PHP Client (formerly TransMail) 
 
-Generic PHP API Client for Zoho's TransMail service
+Generic PHP API Client for Zoho's ZeptoMail service
 
-This unofficial TransMail PHP library allows you to easily send transactional email messages via the [Zoho TransMail API](https://www.zoho.com/transmail/). 
-The TransMail system is intended for transactional emails related to website and app interactions (receipts, password resets, 2FA notices, etc.), not bulk sending of emails like newsletters and announcements. 
-Please see the [TransMail site](https://www.zoho.com/transmail/) for details about use cases and guidelines.
+This unofficial ZeptoMail/Transmail PHP library allows you to easily send transactional email messages via the [Zoho TransMail API](https://www.zoho.com/zeptomail/). 
+The ZeptoMail system is intended for transactional emails related to website and app interactions (receipts, password resets, 2FA notices, etc.), not bulk sending of emails like newsletters and announcements. 
+Please see the [ZeptoMail site](https://www.zoho.com/zeptomail/) for details about use cases and guidelines.
 
 
 ## Installation
@@ -149,7 +149,7 @@ In the event of a cURL error, a string will be returned with the specific PHP er
 
 In the event of API success or failure, a JSON object with the entire API response will be returned. Consult the TransMail documentation for error codes and other details about these messages.
 
-[TransMail API Error Codes](https://www.zoho.com/transmail/help/api/error-codes.html)
+[TransMail API Error Codes](https://www.zoho.com/zeptomail/help/api/error-codes.html)
 
 **Security Note: These verbose messages could divulge sensitive info about your site or your TransMail account, so errors should be captured or turned off in a production setting**.
 
@@ -191,9 +191,9 @@ $attachments[] = array( "content"   => $base64,
 
 ```
 
-[List of unsupported attachments](https://www.zoho.com/transmail/help/file-cache.html#alink-un-sup-for)
+[List of unsupported attachments](https://www.zoho.com/zeptomail/help/file-cache.html#alink-un-sup-for)
 
 
-### [Zoho TransMail API Documentation](https://www.zoho.com/transmail/help/smtp-api.html)
+### [Zoho TransMail API Documentation](https://www.zoho.com/zeptomail/help/introduction.html)
 
 NOTE: This library only sends messages through the TransMail API system. If you are attempting to send via SMTP, please consult the documentation for your web or email server's mail program for SMTP relaying.
