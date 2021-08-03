@@ -2,13 +2,14 @@
 
 Generic PHP API Client for Zoho's ZeptoMail service
 
-This unofficial ZeptoMail/Transmail PHP library allows you to easily send transactional email messages via the [Zoho TransMail API](https://www.zoho.com/zeptomail/). 
+This unofficial ZeptoMail/Transmail PHP library allows you to easily send transactional email messages via the [Zoho ZeptoMail API](https://www.zoho.com/zeptomail/). 
+
 The ZeptoMail system is intended for transactional emails related to website and app interactions (receipts, password resets, 2FA notices, etc.), not bulk sending of emails like newsletters and announcements. 
 Please see the [ZeptoMail site](https://www.zoho.com/zeptomail/) for details about use cases and guidelines.
 
 ## Developer Note
 
-This library was created when this service was called Transmail. Other than the name on the Zoho documentation and a new API endpoint, the API is identical as before and as of this writing continues to work even with the old Transmail endpoint. At some point in the future, I plan to update this library to reflect the new branding.
+This library was created when this service was called Transmail. Other than the name on the Zoho documentation and a new API endpoint, the API is identical as before and as of this writing in August 2021 it continues to work even with the old Transmail endpoint. At some point in the future, I plan to update this library to reflect the new branding. Until then, it will continue to be used and namespaced as "transmail"
 
 ## Installation
 
@@ -31,12 +32,12 @@ Alternately, you can simply [clone this repository](https://github.com/desttools
 
 ## Settings
 
-Before you can connect to the API, you'll need two settings from your TransMail account: an **authorization key** and a **bounce address**
+Before you can connect to the API, you'll need two settings from your ZeptoMail account: an **authorization key** and a **bounce address**
 
 If you are using an environment file, you'll want to create settings with these setting:
 
 ```
-transmailkey = "MyAPIkeyfromTransMail"
+transmailkey = "MyAPIkeyfromZeptoMail"
 transbounceaddr = "bounce@bounce.mydomain.com"
 ```
 
@@ -53,7 +54,7 @@ include_once ('./vendor/autoload.php');
 
 ```
 
-Note: Your ability to send messages also requires that the sender's domain is pre-verified in your TransMail dashboard. Without that, you will see authentication errors.
+Note: Your ability to send messages also requires that the sender's domain is pre-verified in your ZeptoMail dashboard. Without that, you will see authentication errors.
 
 
 ## Basic Mailing Example:
@@ -150,11 +151,11 @@ There are two main possible points of failure that can occur: The cURL request c
 
 In the event of a cURL error, a string will be returned with the specific PHP error code.
 
-In the event of API success or failure, a JSON object with the entire API response will be returned. Consult the TransMail documentation for error codes and other details about these messages.
+In the event of API success or failure, a JSON object with the entire API response will be returned. Consult the ZeptoMail documentation for error codes and other details about these messages.
 
-[TransMail API Error Codes](https://www.zoho.com/zeptomail/help/api/error-codes.html)
+[ZeptoMail API Error Codes](https://www.zoho.com/zeptomail/help/api/error-codes.html)
 
-**Security Note: These verbose messages could divulge sensitive info about your site or your TransMail account, so errors should be captured or turned off in a production setting**.
+**Security Note: These verbose messages could divulge sensitive info about your site or your ZeptoMail account, so errors should be captured or turned off in a production setting**.
 
 ## Additional Headers
 
@@ -171,7 +172,7 @@ $headers[] = array( "CustId"   => "1234",
 
 ## Sending Attachments
 
-Sending attachments means loading the file into PHP's memory, converting to a Base64-encoded stream and then passing that to the function. Since there are three parameters needed by TransMail, it is generally advised to first set up the attachments as an array and then pass that to the function:
+Sending attachments means loading the file into PHP's memory, converting to a Base64-encoded stream and then passing that to the function. Since there are three parameters needed by ZeptoMail, it is generally advised to first set up the attachments as an array and then pass that to the function:
 
 ```PHP 
 
@@ -197,6 +198,6 @@ $attachments[] = array( "content"   => $base64,
 [List of unsupported attachments](https://www.zoho.com/zeptomail/help/file-cache.html#alink-un-sup-for)
 
 
-### [Zoho TransMail API Documentation](https://www.zoho.com/zeptomail/help/introduction.html)
+### [Zoho ZeptoMail API Documentation](https://www.zoho.com/zeptomail/help/introduction.html)
 
-NOTE: This library only sends messages through the TransMail API system. If you are attempting to send via SMTP, please consult the documentation for your web or email server's mail program for SMTP relaying.
+NOTE: This library only sends messages through the ZeptoMail API system. If you are attempting to send via SMTP, please consult the documentation for your web or email server's mail program for SMTP relaying.
