@@ -1,203 +1,263 @@
-# Zoho ZeptoMail API PHP Client (formerly TransMail) 
+# Zoho ZeptoMail API PHP Client
 
-Generic PHP API Client for Zoho's ZeptoMail service
+Unofficial PHP client for [Zoho's ZeptoMail](https://www.zoho.com/zeptomail/) transactional email API.
 
-This unofficial ZeptoMail/Transmail PHP library allows you to easily send transactional email messages via the [Zoho ZeptoMail API](https://www.zoho.com/zeptomail/). 
+ZeptoMail is intended for transactional emails triggered by website or app interactions (receipts, password resets, 2FA notices, etc.), not bulk campaigns or newsletters. See the [ZeptoMail site](https://www.zoho.com/zeptomail/) for use-case guidelines.
 
-The ZeptoMail system is intended for transactional emails related to website and app interactions (receipts, password resets, 2FA notices, etc.), not bulk sending of emails like newsletters and announcements. 
-Please see the [ZeptoMail site](https://www.zoho.com/zeptomail/) for details about use cases and guidelines.
-
-## Developer Note
-
-This library was created when this service was called Transmail. Other than the name on the Zoho documentation and a new API endpoint, the API is identical as before and as of this writing in August 2021 it continues to work even with the old Transmail endpoint. At some point in the future, I plan to update this library to reflect the new branding. Until then, it will continue to be used and namespaced as "transmail"
+---
 
 ## Installation
 
-For most uses we recommend installing the [desttools/transmail](https://packagist.org/packages/desttools/transmail) package via Composer. If you have [Composer](https://getcomposer.org) installed already, you can add the latest version of the package with the following command:
+Install via Composer:
 
 ```
 composer require desttools/transmail
 ```
 
-Or if you're adding this library to an application, in your composer.json file
+Or add to `composer.json`:
 
-```
+```json
 "require": {
-	"desttools/transmail": "dev-master"
-},
-
+    "desttools/transmail": "^2.0"
+}
 ```
 
-Alternately, you can simply [clone this repository](https://github.com/desttools/transmail.git) directly to include the source code in your project.
+You can also [clone this repository](https://github.com/desttools/transmail.git) and include the file directly.
 
-## Settings
+---
 
-Before you can connect to the API, you'll need two settings from your ZeptoMail account: an **authorization key** and a **bounce address**
+## v2: ZeptoMail\ZeptoMailClient (PHP 8.0+)
 
-If you are using an environment file, you'll want to create settings with these setting:
+### Setup
 
-```
-transmailkey = "MyAPIkeyfromZeptoMail"
-transbounceaddr = "bounce@bounce.mydomain.com"
-```
+You'll need a **send-mail token** from your ZeptoMail dashboard. A bounce address is optional but recommended.
 
-If you aren't using environment variables in your application, you can omit this step and pass these settings directly to the mailer (see full example below).
-
-To load the library in your page or app, you'll need to include the file:
-
-```PHP 
-// doing your own loading:
-include_once ("./transmail/TransmailClient.php");
-
-// or if using composer autoloading: 
-include_once ('./vendor/autoload.php'); 
+Set them as environment variables:
 
 ```
+zeptomailkey=YourSendMailToken
+zeptobounceaddr=bounce@bounce.yourdomain.com
+```
 
-Note: Your ability to send messages also requires that the sender's domain is pre-verified in your ZeptoMail dashboard. Without that, you will see authentication errors.
+Or pass them directly to the constructor (see examples below).
 
+> **Note:** The sender domain must be verified in your ZeptoMail dashboard before messages will be accepted.
 
-## Basic Mailing Example:
+Load the library:
 
-```PHP 
+```php
+// Direct include:
+include_once './transmail/ZeptoMailClient.php';
 
-//create a new message object
+// Or via Composer autoloading:
+include_once './vendor/autoload.php';
+```
+
+### Basic Example
+
+```php
 $msg = new \stdClass();
 
-//required settings
-$msg->subject = "My message subject"; //SUBJECT
-$msg->textbody = "My text-only message"; //TEXT MSG, NULL IF sending HTML
-$msg->htmlbody = "<p>My HTML-formatted message</p>"; //HTML MSG, NULL if sending TEXT
-$msg->to = array('joe@customer.com','Joe Customer'); //TO
-$msg->from = array('support@site.com','XYZ Company'); //FROM
+$msg->subject  = 'My message subject';
+$msg->htmlbody = '<p>My HTML-formatted message</p>';
+$msg->textbody = 'My text-only message'; // omit if sending HTML only
+$msg->to       = ['joe@customer.com', 'Joe Customer'];
+$msg->from     = ['support@site.com', 'XYZ Company'];
 
-//instantiate library and pass info
-$tmail = new \Transmail\TransmailClient($msg);
+$client = new \ZeptoMail\ZeptoMailClient($msg);
+$result = $client->send();
 
-//send the message
-$response = $tmail->send();
-
-if ($response)
-{
-// success
-} 
-else 
-{
-// failure
+if ($result) {
+    // success
+} else {
+    // failure
 }
-
 ```
 
-Note: You can pass all email addresses either as a string or as an array, like this:
+### Full Example
 
-```PHP 
-$msg->to = 'joe@customer.com'; 
-//or
-$msg->to = array('joe@customer.com','Joe Customer');
-```
-If using an array, the formatter will look for the email address in either the first or second element position. If it finds an address, it will use the remaining element as the text name. If additional elements are passed here they will be ignored.
+All available options, including passing credentials directly:
 
-## Full Example
+```php
+$msg = new \stdClass();
 
-Below are ALL the possible options, including manually setting an authorization key and bounce address:
+// Required
+$msg->subject  = 'My message subject';
+$msg->htmlbody = '<p>My HTML-formatted message</p>';
+$msg->textbody = 'My text-only message';
+$msg->to       = ['joe@customer.com', 'Joe Customer'];
+$msg->from     = ['support@site.com', 'XYZ Company'];
 
-```PHP 
+// Optional
+$msg->reply_to         = ['address@site.com', 'XYZ Company'];
+$msg->cc               = ['address2@site.com', 'Someone'];
+$msg->bcc              = ['address3@site.com', 'Somebody Else'];
+$msg->track_clicks     = true;
+$msg->track_opens      = true;
+$msg->client_reference = null; // arbitrary string, passed through to API
+$msg->mime_headers     = null; // array of additional MIME headers
+$msg->attachments      = null; // array — see Attachments section
+$msg->inline_images    = null; // array
 
-	//create a new message object
-	$msg = new \stdClass();
-	
-	//required settings
-	$msg->subject = "My message subject"; //SUBJECT
-	$msg->textbody = "My text-only message"; //TEXT MSG, NULL IF sending HTML
-	$msg->htmlbody = "<p>My HTML-formatted message</p>"; //HTML MSG, NULL if sending TEXT
-	$msg->to = array('joe@customer.com','Joe Customer'); //TO
-	$msg->from = array('support@site.com','XYZ Company'); //FROM
-	
-	//optional settings
-	$msg->reply_to = array('address@site.com','XYZ Company'); //REPLY TO
-	$msg->cc = array('address2@site.com','Someone'); //CC
-	$msg->bcc = array('address3@site.com','Somebody Else'); //BCC
-	$msg->track_clicks = TRUE; //TRACK CLICKS, TRUE by default
-	$msg->track_opens = TRUE; //TRACK OPENS, TRUE by default
-	$msg->client_reference = NULL; //CLIENT ID (string)
-	$msg->mime_headers = NULL; //ADDITIONAL MIME HEADERS (array)
-	$msg->attachments = NULL; //ATTACHMENTS (array)
-	$msg->inline_images = NULL; //INLINE IMAGES (array)
-	
-	//instantiate library and pass all possible settings
-	$tmail = new \Transmail\TransmailClient($msg, "myapikey", "mybounce@address.com", TRUE);
-	
-	//send the message
-	$response = $tmail->send();
-			
-	if ($response)
-	{
-		// success
-	} 
-	else 
-	{
-		// failure
-	}
-
+// Pass API key and bounce address directly (overrides env vars)
+$client = new \ZeptoMail\ZeptoMailClient($msg, 'myapikey', 'mybounce@address.com');
+$result = $client->send();
 ```
 
-## Error Handling
+### Multiple Recipients
 
-When you actually load the library, there is a 4th parameter that can be passed to turn on verbose error reporting. By default, this is off and the function returns **TRUE** (message sent) and **FALSE** (message not sent).
+`to`, `cc`, and `bcc` each accept either a single `['email', 'name']` pair or an array of such pairs:
 
-There are two main possible points of failure that can occur: The cURL request could fail, or the API request could fail. In both cases, the function will return a generic **FALSE** unless you have verbose errors turned on. 
-
-### With Verbose Errors Turned On:
-
-In the event of a cURL error, a string will be returned with the specific PHP error code.
-
-In the event of API success or failure, a JSON object with the entire API response will be returned. Consult the ZeptoMail documentation for error codes and other details about these messages.
-
-[ZeptoMail API Error Codes](https://www.zoho.com/zeptomail/help/api/error-codes.html)
-
-**Security Note: These verbose messages could divulge sensitive info about your site or your ZeptoMail account, so errors should be captured or turned off in a production setting**.
-
-## Additional Headers
-
-Passing additional headers to the email server is possible. Simply create any name-value pairs you want as an array and pass that to the function
-
-```PHP 
-
-$headers = array();
-
-$headers[] = array( "CustId"   => "1234",
-		    "CustName" => "Bob Smith" );
-
+```php
+$msg->to = [
+    ['alice@example.com', 'Alice'],
+    ['bob@example.com',   'Bob'],
+];
 ```
 
-## Sending Attachments
+### Address Formatting
 
-Sending attachments means loading the file into PHP's memory, converting to a Base64-encoded stream and then passing that to the function. Since there are three parameters needed by ZeptoMail, it is generally advised to first set up the attachments as an array and then pass that to the function:
+Addresses can be passed as a plain string or as an array. When an array is used, the library detects which element is the email address and uses the other as the display name:
 
-```PHP 
+```php
+$msg->to = 'joe@customer.com';
+// or
+$msg->to = ['joe@customer.com', 'Joe Customer'];
+// or — order doesn't matter, email is detected by format:
+$msg->to = ['Joe Customer', 'joe@customer.com'];
+```
 
-$attachments = array();
+### Error Handling
 
-$file = "filename.jpg";
-$path = "/path/to/" . $file;
+By default, `send()` returns `true` on success and `false` on failure.
+
+Pass `true` as the fourth constructor argument to enable verbose mode. In verbose mode, `send()` returns the full API response object on API calls (success or failure), or an error string if the cURL request itself fails. This is useful for debugging but **may expose sensitive account information — disable it in production**.
+
+```php
+$client = new \ZeptoMail\ZeptoMailClient($msg, 'myapikey', null, true);
+$result = $client->send(); // stdClass API response object
+
+// Reference for API error codes:
+// https://www.zoho.com/zeptomail/help/api/error-codes.html
+```
+
+The constructor throws `\InvalidArgumentException` if no API key can be found (neither passed directly nor set as `zeptomailkey` in the environment), or if `subject`, `from`, or `to` are missing from the message.
+
+### Additional MIME Headers
+
+```php
+$msg->mime_headers = [
+    ['CustId'   => '1234',
+     'CustName' => 'Bob Smith'],
+];
+```
+
+### Attachments
+
+The library passes attachment data through to the API as-is. Please note that ZeptoMail has a 15MB weight limit for all attachments. Build the attachment array yourself, base64-encoding the file content:
+
+```php
+$attachments = [];
+
+$file     = 'filename.jpg';
+$path     = '/path/to/' . $file;
 $filedata = file_get_contents($path);
 
-if ($filedata) 
-{
-
-$base64 = base64_encode($filedata);
-
-$attachments[] = array( "content"   => $base64,
-			"mime_type" => mime_content_type($path),
-			"name"      => $file );
-
+if ($filedata) {
+    $attachments[] = [
+        'content'   => base64_encode($filedata),
+        'mime_type' => mime_content_type($path),
+        'name'      => $file,
+    ];
 }
 
+$msg->attachments = $attachments;
 ```
 
-[List of unsupported attachments](https://www.zoho.com/zeptomail/help/file-cache.html#alink-un-sup-for)
+[List of attachment types unsupported by ZeptoMail](https://www.zoho.com/zeptomail/help/file-cache.html#alink-un-sup-for)
 
+---
 
-### [Zoho ZeptoMail API Documentation](https://www.zoho.com/zeptomail/help/introduction.html)
+## v1: Transmail\TransmailClient (legacy)
 
-NOTE: This library only sends messages through the ZeptoMail API system. If you are attempting to send via SMTP, please consult the documentation for your web or email server's mail program for SMTP relaying.
+> **v1 is no longer actively maintained.** It continues to work but does not receive bug fixes or new features. New projects should use `ZeptoMail\ZeptoMailClient` above.
+>
+> If you are upgrading from v1, see the [migration notes](#migrating-from-v1-to-v2) below.
+
+### Setup (v1)
+
+```
+transmailkey=YourAPIkey
+transbounceaddr=bounce@bounce.yourdomain.com
+```
+
+```php
+include_once './transmail/TransmailClient.php';
+// or: include_once './vendor/autoload.php';
+```
+
+### Basic Example (v1)
+
+```php
+$msg = new \stdClass();
+
+$msg->subject  = 'My message subject';
+$msg->textbody = 'My text-only message';
+$msg->htmlbody = '<p>My HTML-formatted message</p>';
+$msg->to       = ['joe@customer.com', 'Joe Customer'];
+$msg->from     = ['support@site.com', 'XYZ Company'];
+
+$tmail  = new \Transmail\TransmailClient($msg);
+$result = $tmail->send();
+```
+
+### Full Example (v1)
+
+```php
+$msg = new \stdClass();
+
+$msg->subject         = 'My message subject';
+$msg->textbody        = 'My text-only message';
+$msg->htmlbody        = '<p>My HTML-formatted message</p>';
+$msg->to              = ['joe@customer.com', 'Joe Customer'];
+$msg->from            = ['support@site.com', 'XYZ Company'];
+$msg->reply_to        = ['address@site.com', 'XYZ Company'];
+$msg->cc              = ['address2@site.com', 'Someone'];
+$msg->bcc             = ['address3@site.com', 'Somebody Else'];
+$msg->track_clicks    = true;
+$msg->track_opens     = true;
+$msg->client_reference = null;
+$msg->mime_headers    = null;
+$msg->attachments     = null;
+$msg->inline_images   = null;
+
+$tmail  = new \Transmail\TransmailClient($msg, 'myapikey', 'mybounce@address.com', true);
+$result = $tmail->send();
+```
+
+---
+
+## Migrating from v1 to v2
+
+| | v1 | v2 |
+|---|---|---|
+| **File** | `TransmailClient.php` | `ZeptoMailClient.php` |
+| **Namespace / class** | `Transmail\TransmailClient` | `ZeptoMail\ZeptoMailClient` |
+| **Composer** | `desttools/transmail:^1.0` | `desttools/transmail:^2.0` |
+| **API key env var** | `transmailkey` | `zeptomailkey` |
+| **Bounce env var** | `transbounceaddr` | `zeptobounceaddr` |
+| **No API key found** | Returns `false` / error string (silently ignored) | Throws `\InvalidArgumentException` |
+| **Multiple recipients** | Not supported | Pass an array of `['email', 'name']` pairs |
+| **Bounce address** | Required | Optional |
+
+Message field names (`subject`, `htmlbody`, `to`, `from`, etc.) are identical between versions.
+
+---
+
+## SMTP
+
+This library only sends through the ZeptoMail HTTP API. For SMTP relay, consult your mail server's documentation or the [ZeptoMail SMTP docs](https://www.zoho.com/zeptomail/help/introduction.html).
+
+---
+
+### [ZeptoMail API Documentation](https://www.zoho.com/zeptomail/help/introduction.html)
